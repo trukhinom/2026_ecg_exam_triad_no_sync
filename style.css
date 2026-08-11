@@ -1,0 +1,181 @@
+:root {
+  /* Color tokens */
+  --color-bg: #f5f7f8;
+  --color-surface: #ffffff;
+  --color-ink: #1b2430;
+  --color-ink-soft: #4a5568;
+  --color-accent: #0e7c86;
+  --color-accent-soft: #dceef0;
+  --color-border: #dde3e6;
+
+  /* Phase tokens — used by timeSeries.js for background shading (Baseline/Exam) */
+  --phase-baseline: #e8ecef;
+  --phase-exam: #f3e5d8;
+
+  /* Participant colors/labels live in src/utils/participantStyle.js (single
+     source shared by all chart modules) — not here. */
+
+  /* Type */
+  --font-display: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --font-body: -apple-system, "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  line-height: 1.55;
+}
+
+/* ---------- Header ---------- */
+
+.page-header {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.header-inner {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 0.4rem 0 0;
+  color: var(--color-ink-soft);
+  font-size: 1rem;
+}
+
+.ecg-divider {
+  display: block;
+  width: 100%;
+  height: 32px;
+}
+.ecg-divider path {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* ---------- Main / report sections ---------- */
+
+main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 4rem;
+}
+
+.report-section {
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.report-section:last-child { border-bottom: none; }
+
+h2 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  margin: 0 0 0.75rem;
+}
+
+.section-note {
+  margin: -0.25rem 0 1rem;
+  font-size: 0.85rem;
+  color: var(--color-ink-soft);
+}
+
+.section-note code {
+  font-family: var(--font-mono);
+  background: var(--color-accent-soft);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+}
+
+.chart-container {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 1rem;
+  min-height: 320px;
+}
+
+.chart-container.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-ink-soft);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* Two charts side by side (DTW matrices Baseline/Exam, network Baseline/Exam).
+   grid, not flex+flex-wrap: flex-wrap was the actual cause of the charts
+   landing on separate rows — grid-template-columns forces exactly 2 tracks
+   and never reflows a track onto a new line the way flex-wrap can. */
+.chart-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.chart-row .chart-container {
+  min-width: 0; /* lets a track shrink below a wide child's intrinsic width instead of forcing overflow */
+}
+
+/* ---------- Chart internals (used by src/charts/*.js) ---------- */
+
+.axis text { fill: var(--color-ink-soft); font-size: 0.75rem; }
+.axis path, .axis line { stroke: var(--color-border); }
+
+.legend { font-size: 0.8rem; }
+.legend-item { display: inline-flex; align-items: center; gap: 0.35rem; margin-right: 1rem; }
+.legend-item--clickable { cursor: pointer; user-select: none; transition: opacity 0.15s ease; }
+.legend-item--clickable:hover { opacity: 0.7; }
+.chart-el--clickable { cursor: pointer; }
+.chart-el--clickable:hover { opacity: 0.7; }
+
+.hover-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--color-ink);
+  color: white;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  padding: 0.35rem 0.55rem;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+  white-space: nowrap;
+  z-index: 10;
+}
+.legend-item--muted { opacity: 0.35; }
+.legend-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+/* ---------- Footer ---------- */
+
+.page-footer {
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.8rem;
+  color: var(--color-ink-soft);
+}

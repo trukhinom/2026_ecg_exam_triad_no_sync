@@ -1,0 +1,7 @@
+participant,phase,q1,median,q3,whisker_low,whisker_high,n
+participant_1,Baseline,73.79,81.23,90.0,65.64,109.73,81
+participant_1,Exam,80.32,88.44,99.0,59.56,126.66,315
+participant_2,Baseline,95.32,106.97,124.24,77.04,162.9,81
+participant_2,Exam,114.26,128.66,141.86,78.26,180.47,315
+participant_3,Baseline,52.35,64.65,73.72,43.48,82.52,81
+participant_3,Exam,55.24,68.86,77.06,40.61,95.2,315

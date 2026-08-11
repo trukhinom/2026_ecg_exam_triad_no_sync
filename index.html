@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ECG Triad Synchrony — Report</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+
+  <header class="page-header">
+    <div class="header-inner">
+      <p class="eyebrow">Physiological signal analysis</p>
+      <h1>ECG Synchrony in a Triad</h1>
+      <p class="subtitle">Participant 1 · Participant 2 · Participant 3 — Baseline / Exam</p>
+    </div>
+    <!-- Signature element: a synthetic PQRST trace as a section divider -->
+    <svg class="ecg-divider" viewBox="0 0 800 60" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,30 L120,30 L140,10 L160,50 L180,5 L200,45 L220,30 L340,30
+               L360,30 L380,10 L400,50 L420,5 L440,45 L460,30 L580,30
+               L600,30 L620,10 L640,50 L660,5 L680,45 L700,30 L800,30" />
+    </svg>
+  </header>
+
+  <main>
+
+    <section class="report-section" id="section-intro">
+      <h2>1. Research question</h2>
+      <p>
+        Section for a short text introduction: the goal of the triad analysis, its
+        composition (three anonymized participants — two in the role of students who
+        took an exam together, the third in the role of the instructor), recording
+        phases (Baseline / Exam), and the synchrony methods used
+        (DTW, WCLC, CRQA, WCC, PLV, Kuramoto).
+      </p>
+    </section>
+
+    <section class="report-section" id="section-ecg-overlay">
+      <h2>2.1 ECG — three participants, overlaid</h2>
+      <p class="section-note">
+        Data: <code>data/ecg_raw.csv</code> (+ optionally <code>data/markers.csv</code>) —
+        see <code>data/README.md</code> §5, §7. Short excerpt, not the whole recording — see §8.
+      </p>
+      <div id="chart-ecg-overlay" class="chart-container"></div>
+    </section>
+
+    <section class="report-section" id="section-instantaneous-hr">
+      <h2>2.2 HR — three participants, overlaid</h2>
+      <p class="section-note">
+        Data: <code>data/instantaneous_hr.csv</code> — see <code>data/README.md</code> §6.
+      </p>
+      <div id="chart-instantaneous-hr" class="chart-container"></div>
+    </section>
+
+    <section class="report-section" id="section-hr-trend">
+      <h2>2.3 HR trend (mean ± SD, sliding window)</h2>
+      <p class="section-note">
+        Data: <code>data/hr_trend_sd.csv</code> — see <code>data/README.md</code> §10. Whole session, not an excerpt.
+      </p>
+      <div id="chart-hr-trend" class="chart-container"></div>
+    </section>
+
+    <section class="report-section" id="section-hr-boxplot">
+      <h2>2.4 HR distribution — Baseline vs Exam</h2>
+      <p class="section-note">
+        Data: <code>data/hr_box_stats.csv</code> + <code>data/hr_box_outliers.csv</code> —
+        see <code>data/README.md</code> §11.
+      </p>
+      <div id="chart-hr-boxplot" class="chart-container"></div>
+    </section>
+
+    <section class="report-section" id="section-rr-interval">
+      <h2>2.5 RR intervals — three participants, overlaid</h2>
+      <p class="section-note">
+        Data: same as 2.2 HR (<code>data/instantaneous_hr.csv</code>) — RR = 60000/HR,
+        no separate file needed, see <code>data/README.md</code> §12.
+      </p>
+      <div id="chart-rr-interval" class="chart-container"></div>
+    </section>
+
+    <section class="report-section" id="section-timeseries">
+      <h2>2.6 RMSSD — sliding window, whole session</h2>
+      <p class="section-note">
+        Data: <code>data/rmssd.csv</code> (+ optionally <code>data/markers.csv</code>) —
+        see <code>data/README.md</code> §1, §7.
+      </p>
+      <div id="chart-timeseries" class="chart-container"></div>
+    </section>
+
+    <section class="report-section" id="section-rmssd-boxplot">
+      <h2>2.7 RMSSD distribution — Baseline vs Exam</h2>
+      <p class="section-note">
+        Data: <code>data/rmssd_box_stats.csv</code> + <code>data/rmssd_box_outliers.csv</code> —
+        see <code>data/README.md</code> §11.
+      </p>
+      <div id="chart-rmssd-boxplot" class="chart-container"></div>
+    </section>
+
+    <section class="report-section" id="section-dtw-matrix">
+      <h2>3.1 DTW distance matrix</h2>
+      <p class="section-note">
+        Fits a summary synchrony coefficient for a participant pair — DTW distance. The
+        diagonal is self-similarity: 0.0 is natural for DTW distance (a series' distance
+        to itself). The matrix is symmetric by construction
+        (synchrony(A,B) = synchrony(B,A)).
+      </p>
+      <div class="chart-row">
+        <div id="chart-dtw-baseline" class="chart-container"></div>
+        <div id="chart-dtw-exam" class="chart-container"></div>
+      </div>
+    </section>
+
+    <section class="report-section" id="section-dtw-alignment-p1p2">
+      <h2>3.2 DTW alignment example — Participant 1 vs Participant 2</h2>
+      <p class="section-note">
+        An illustration for the DTW matrix: not a summary number, but the process
+        itself — how far one series of z-scored RMSSD had to be "shifted" relative to
+        the other for the shapes to match.
+      </p>
+      <div id="chart-dtw-alignment-p1p2" class="chart-container"></div>
+    </section>
+
+    <section class="report-section" id="section-dtw-alignment-p2p3">
+      <h2>3.3 DTW alignment example — Participant 2 vs Participant 3</h2>
+      <p class="section-note">
+        An illustration for the DTW matrix: not a summary number, but the process
+        itself — how far one series of z-scored RMSSD had to be "shifted" relative to
+        the other for the shapes to match.
+      </p>
+      <div id="chart-dtw-alignment-p2p3" class="chart-container"></div>
+    </section>
+
+    <section class="report-section" id="section-dtw-alignment-p3p1">
+      <h2>3.4 DTW alignment example — Participant 3 vs Participant 1</h2>
+      <p class="section-note">
+        An illustration for the DTW matrix: not a summary number, but the process
+        itself — how far one series of z-scored RMSSD had to be "shifted" relative to
+        the other for the shapes to match.
+      </p>
+      <div id="chart-dtw-alignment-p3p1" class="chart-container"></div>
+    </section>
+
+    <section class="report-section" id="section-heatmap">
+      <h2>3.5 Pairwise synchrony matrix (draft)</h2>
+      <p class="section-note">
+        Data: <code>data/example_synchrony_matrix.csv</code> — currently a PLACEHOLDER
+        (made-up numbers for layout testing, not a computed result). The visualization
+        itself is still under discussion — a replacement is being considered.
+      </p>
+      <div id="chart-heatmap" class="chart-container"></div>
+    </section>
+
+    <section class="report-section" id="section-network">
+      <h2>3.6 Synchrony network</h2>
+      <p class="section-note">
+        Weight — link strength, the higher, the stronger the synchrony (the graph draws
+        a thicker, more opaque edge and pulls the nodes closer together — the reverse of
+        DTW distance, where SMALLER means more similar).
+      </p>
+      <div class="chart-row">
+        <div id="chart-network-baseline" class="chart-container"></div>
+        <div id="chart-network-exam" class="chart-container"></div>
+      </div>
+    </section>
+
+    <section class="report-section" id="section-recurrence">
+      <h2>3.7 Recurrence plot</h2>
+      <p class="section-note">
+        Data: <code>data/recurrence_example.json</code> — see <code>data/README.md</code> §4.
+        One illustrative example (one pair, one phase), not all pairs at once.
+      </p>
+      <div id="chart-recurrence" class="chart-container"></div>
+    </section>
+
+    <section class="report-section" id="section-discussion">
+      <h2>4. Discussion</h2>
+      <p>
+        Section for interpretation: where synchrony was found, between which
+        participants and in which phase, and whether this matches the
+        student-student vs student-teacher hypothesis.
+      </p>
+    </section>
+
+  </main>
+
+  <footer class="page-footer">
+    <p>ECG Triad Synchrony Report</p>
+  </footer>
+
+  <script type="module" src="./index.js"></script>
+</body>
+</html>

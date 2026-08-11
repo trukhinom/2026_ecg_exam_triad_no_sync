@@ -1,0 +1,4 @@
+participant,participant_1,participant_2,participant_3
+participant_1,1.0,0.13,0.122
+participant_2,0.13,1.0,0.14
+participant_3,0.122,0.14,1.0
