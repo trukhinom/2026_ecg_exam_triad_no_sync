@@ -10,7 +10,6 @@
 
 import * as d3 from "d3";
 import { PARTICIPANT_COLORS, PARTICIPANT_LABELS } from "../utils/participantStyle.js";
-import { getContentWidth } from "../utils/containerWidth.js";
 import { formatSeconds } from "../utils/formatTime.js";
 
 /**
@@ -34,13 +33,21 @@ export function renderDtwAlignmentExample(containerId, series, path, options = {
   const seriesA = series.filter((d) => d.participant === pA).sort((a, b) => a.time_s - b.time_s);
   const seriesB = series.filter((d) => d.participant === pB).sort((a, b) => a.time_s - b.time_s);
 
-  const width = getContentWidth(container, 900);
+  // Fixed design-time width, not measured from the DOM - the SVG scales
+  // to its actual container size via viewBox + width:100% below, which
+  // lets the BROWSER'S CSS engine handle the real sizing (same mechanism
+  // as `main { max-width: 880px }`) instead of a JS clientWidth read that
+  // has proven fragile across screen sizes twice now (see chat).
+  const width = 900;
   const height = 420;
   const margin = { top: 40, right: 20, bottom: 30, left: 56 };
   const innerW = width - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
 
-  const svg = container.append("svg").attr("width", width).attr("height", height + 26);
+  const svg = container.append("svg").attr("viewBox", `0 0 ${width} ${height + 26}`)
+    .attr("width", "100%")
+    .attr("height", "auto")
+    .style("display", "block");
   const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
   const allTimes = [...seriesA, ...seriesB].map((d) => d.time_s);

@@ -180,7 +180,7 @@
     <section class="report-section" id="section-synchrony-summary">
       <h2>3. Synchrony Detection</h2>
       <p class="section-note">
-        Below are the results for Windowed Cross-Correlation (WCC), Dynamic Time Warping (DTW) and the Synchrony Network graph.
+        Below are the results for Windowed Cross-Correlation (WCC), Windowed Cross-Lagged Correlation (WCLC), Dynamic Time Warping (DTW) and the Synchrony Network graph.
       </p>
     </section>
 
@@ -229,16 +229,58 @@
       </p>
       <div id="chart-wcc" class="chart-container"></div>
       <p class="section-note" style="margin-top: 1rem;">
-  By this measure, cardiac synchrony was similarly weak across all three pairs, in
-  both phases — mean |r| ranged from 0.12 to 0.21 with no pair standing out, and the
-  Mann-Whitney test found no significant difference between the insider 
-  and outsider pairs in either Baseline (p=0.61) or Exam (p=0.54). WCC does not
-  support the insider/outsider synchrony hypothesis.
-</p>
+        By this measure, cardiac synchrony was similarly weak across all three pairs, in
+        both phases — mean |r| ranged from 0.12 to 0.21 with no pair standing out, and the
+        Mann-Whitney test found no significant difference between the insider 
+        and outsider pairs in either Baseline (p=0.61) or Exam (p=0.54). WCC does not
+        support the insider/outsider synchrony hypothesis.
+      </p>
+    </section>
+
+    <section class="report-section" id="section-wclc-lag">
+      <h2>3.2 WCLC — lag</h2>
+      <p class="section-note">
+        Windowed Cross-Lagged Correlation (WCLC): the same sliding-window idea as WCC,
+        but at each window it also searches a range of time lags and keeps the one with
+        the strongest correlation — HR native 10-second grid, 180-second window,
+        30-second step, ±90-second lag search. 
+      </p>
+      <table class="mini-table">
+        <thead>
+          <tr>
+            <th>Pair</th><th>Role</th><th>Phase</th>
+            <th>mean |best_r|</th><th>median lag (s)</th><th>n windows</th><th>z</th><th>p</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Participant 1 × 2</td><td>insider</td><td>Baseline</td><td>0.560</td><td>−10</td><td>35</td><td>1.86</td><td>0.0200</td></tr>
+          <tr><td>Participant 3 × 1</td><td>outsider</td><td>Baseline</td><td>0.545</td><td>+60</td><td>35</td><td>1.11</td><td>0.1500</td></tr>
+          <tr><td>Participant 2 × 3</td><td>outsider</td><td>Baseline</td><td>0.558</td><td>+10</td><td>35</td><td>1.36</td><td>0.1550</td></tr>
+          <tr><td>Participant 1 × 2</td><td>insider</td><td>Exam</td><td>0.538</td><td>−20</td><td>154</td><td>1.72</td><td>0.0650</td></tr>
+          <tr><td>Participant 3 × 1</td><td>outsider</td><td>Exam</td><td>0.526</td><td>−20</td><td>154</td><td>−0.50</td><td>0.6900</td></tr>
+          <tr><td>Participant 2 × 3</td><td>outsider</td><td>Exam</td><td>0.505</td><td>−10</td><td>153</td><td>−1.29</td><td>0.8750</td></tr>
+        </tbody>
+      </table>
+      <p class="section-note">
+        z/p test the mean coupling strength (|best_r|) against a surrogate (chance) distribution
+        — only one result reaches p&lt;0.05: the insider pair (Participant 1 × 2) in Baseline
+        (z=1.86, p=0.02). No other pair/phase combination is significant, including the same
+        insider pair during the Exam itself — the one result that stands out is in the phase
+        the exam-stress hypothesis cares about least. Median lag values shift sign and magnitude
+        across pairs and phases with no consistent pattern, and (see the chart below) the
+        per-window lag is quite variable within a phase too — not evidence of a stable,
+        consistent "leader" for any pair.
+      </p>
+      <p class="section-note">
+        This chart plots that best lag over time, not the correlation itself: positive means the first-named participant in the
+        pair leads (their HR pattern shows up in the second participant's HR that many
+        seconds later), negative means the reverse, zero means no time shift.
+      </p>
+      <div id="chart-wclc-lag" class="chart-container"></div>
     </section>
 
     <section class="report-section" id="section-dtw-matrix">
-      <h2>3.2 DTW distance matrix</h2>
+      <h2>3.3 DTW distance matrix</h2>
       <p class="section-note">
         Dynamic Time Warping (DTW): unlike Pearson correlation, which compares two series
         strictly point-by-point at the same moment in time, DTW finds the best nonlinear
@@ -271,7 +313,7 @@
     </section>
 
     <section class="report-section" id="section-dtw-alignment-p1p2">
-      <h2>3.3 DTW alignment example</h2>
+      <h2>DTW alignment example</h2>
       <p class="section-note">
         What's happening here: both lines are the same z-scored RMSSD curve as in 3.2 — one
         drawn above the other (not overlaid) so the connectors below are readable. Each thin

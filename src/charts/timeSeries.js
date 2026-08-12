@@ -15,7 +15,6 @@
 
 import * as d3 from "d3";
 import { PARTICIPANT_COLORS, PARTICIPANT_LABELS } from "../utils/participantStyle.js";
-import { getContentWidth } from "../utils/containerWidth.js";
 import { makeParticipantFilterable } from "../utils/participantFilter.js";
 import { formatSeconds } from "../utils/formatTime.js";
 import { attachLineHover } from "../utils/hoverTooltip.js";
@@ -46,7 +45,11 @@ export function renderTimeSeries(containerId, data, markers = [], options = {}) 
 
   const hasCI = data.length > 0 && data[0].ciLow != null && !Number.isNaN(data[0].ciLow);
 
-  const width = getContentWidth(container, 800);
+  // Fixed design-time width, not measured from the DOM - the SVG scales
+  // to its actual container size via viewBox + width:100% below, instead
+  // of a JS clientWidth read that has proven fragile across screen sizes
+  // twice now (see chat).
+  const width = 800;
   const height = 340;
   const margin = { top: 16, right: 16, bottom: 32, left: 48 };
   const innerW = width - margin.left - margin.right;
@@ -54,8 +57,10 @@ export function renderTimeSeries(containerId, data, markers = [], options = {}) 
 
   const svg = container
     .append("svg")
-    .attr("width", width)
-    .attr("height", height + 28); // + room for the legend
+    .attr("viewBox", `0 0 ${width} ${height + 28}`) // + room for the legend
+    .attr("width", "100%")
+    .attr("height", "auto")
+    .style("display", "block");
 
   const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 

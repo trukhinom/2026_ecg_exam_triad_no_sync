@@ -7,7 +7,6 @@
 
 import * as d3 from "d3";
 import { PARTICIPANT_LABELS } from "../utils/participantStyle.js";
-import { getContentWidth } from "../utils/containerWidth.js";
 
 /**
  * @param {string} containerId
@@ -28,16 +27,22 @@ export function renderSynchronyHeatmap(containerId, data, options = {}) {
   const container = d3.select(`#${containerId}`);
   container.selectAll("*").remove();
 
-  // Reads the container's REAL width (its CSS grid column, on any screen
-  // size) minus its own padding, capped at 420 - not a fixed pixel value.
-  // See network.js for why the earlier fixed-360px version broke on mobile.
-  const size = Math.min(getContentWidth(container, 400), 420);
+  // Fixed design-time target size, not measured from the DOM - the SVG
+  // scales to its actual container size via viewBox + width:100% below
+  // (handles both the desktop 2-column grid and the mobile 1-column
+  // stack, see style.css .chart-row), instead of a JS clientWidth read
+  // that has proven fragile across screen sizes twice now (see chat).
+  const size = 400;
   const margin = { top: 60, right: 16, bottom: 16, left: 110 };
   const cell = (size - margin.left - margin.right) / participants.length;
   const width = margin.left + cell * participants.length + margin.right;
   const height = margin.top + cell * participants.length + margin.bottom;
 
-  const svg = container.append("svg").attr("width", width).attr("height", height);
+  const svg = container.append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("width", "100%")
+    .attr("height", "auto")
+    .style("display", "block");
   const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
   const color = d3.scaleSequential(d3.interpolateRdYlBu).domain([domain[1], domain[0]]);

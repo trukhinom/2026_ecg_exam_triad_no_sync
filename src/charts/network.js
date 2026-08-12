@@ -10,7 +10,6 @@
 import * as d3 from "d3";
 import { PARTICIPANT_COLORS, PARTICIPANT_LABELS } from "../utils/participantStyle.js";
 import { toggleParticipant, onFilterChange, isHidden } from "../utils/participantFilter.js";
-import { getContentWidth } from "../utils/containerWidth.js";
 
 /**
  * @param {string} containerId
@@ -23,18 +22,19 @@ export function renderNetwork(containerId, graph, options = {}) {
   const container = d3.select(`#${containerId}`);
   container.selectAll("*").remove();
 
-  // Reads the container's REAL width (its CSS grid column, on any screen
-  // size) minus its own padding - NOT a fixed pixel value. An earlier
-  // version hardcoded 360px here to work around charts wrapping onto
-  // separate rows in a flex layout; that reflow bug is gone now that
-  // .chart-row uses CSS grid (grid-template-columns forces exactly 2
-  // columns regardless of child width), but the fixed 360px stuck around
-  // and, on a mobile screen narrower than 360px total, made the two
-  // networks overlap instead of just sitting side by side too widely.
-  const width = getContentWidth(container, 500);
+  // Fixed design-time width, not measured from the DOM - the SVG scales to
+  // its actual container size via viewBox + width:100% below (handles both
+  // the desktop 2-column grid and the mobile 1-column stack, see style.css
+  // .chart-row), instead of a JS clientWidth read that has proven fragile
+  // across screen sizes twice now (see chat).
+  const width = 500;
   const height = 360;
 
-  const svg = container.append("svg").attr("width", width).attr("height", height + 20);
+  const svg = container.append("svg")
+    .attr("viewBox", `0 0 ${width} ${height + 20}`)
+    .attr("width", "100%")
+    .attr("height", "auto")
+    .style("display", "block");
   svg.append("text")
     .attr("x", 12).attr("y", 18)
     .style("font-family", "var(--font-display)").style("font-size", "1rem")

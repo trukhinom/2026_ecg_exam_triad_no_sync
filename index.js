@@ -24,7 +24,7 @@ import { renderEcgOverlayStatic } from "./src/charts/ecgOverlayStatic.js";
 import { renderHrOverlayStatic, renderRrIntervalOverlay } from "./src/charts/hrOverlayStatic.js";
 import { renderTrendWithSd } from "./src/charts/trendWithSdStatic.js";
 import { renderBoxplot } from "./src/charts/boxplotStatic.js";
-import { renderWcc } from "./src/charts/wccStatic.js";
+import { renderWcc, renderWclcLag } from "./src/charts/pairTimeSeriesStatic.js";
 import { renderDtwAlignmentExample } from "./src/charts/dtwAlignmentExample.js";
 import { renderNetwork } from "./src/charts/network.js";
 
@@ -76,6 +76,10 @@ async function main() {
   // --- 3.1 WCC ---
   const wccData = await loadPairTimeSeries("./data/wcc.csv");
   renderWcc("chart-wcc", wccData, markers);
+
+  // --- WCLC lag (container id: chart-wclc-lag - place its <section> wherever you want it numbered) ---
+  const wclcData = await loadPairTimeSeries("./data/wclc.csv");
+  renderWclcLag("chart-wclc-lag", wclcData, markers);
 
   // --- 3.2 DTW distance matrix (Baseline / Exam, side by side) ---
   const [dtwBaseline, dtwExam] = await Promise.all([

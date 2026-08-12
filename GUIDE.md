@@ -33,6 +33,7 @@ next to `index.html` works in `npm run dev` but silently disappears from
 | `rmssd.csv` | long, with `ci_low`/`ci_high` | 2.6 RMSSD |
 | `rmssd_box_stats.csv` + `rmssd_box_outliers.csv` | long | 2.7 RMSSD distribution |
 | `wcc.csv` | long, keyed by pair | 3.1 WCC |
+| `wclc.csv` | long, keyed by pair | WCLC lag (container id `chart-wclc-lag` - add its `<section>` wherever you want it numbered) |
 | `dtw_matrix_baseline.csv` + `dtw_matrix_exam.csv` | wide | 3.2 DTW matrix |
 | `dtw_alignment_p1p2_series.csv` + `_path.csv` | long | 3.3 DTW alignment example (Participant 1 × 2) |
 | `dtw_alignment_p2p3_series.csv` + `_path.csv` | long | 3.4 DTW alignment example (Participant 2 × 3) |
@@ -66,11 +67,11 @@ ecg-triad-synchrony/
     ├── utils/
     │   ├── loadData.js          — CSV/JSON loading and parsing
     │   ├── participantStyle.js  — SINGLE source of participant colors/labels
-    │   ├── pairStyle.js         — same idea, for participant PAIRS (used by WCC)
-    │   ├── participantFilter.js — page-wide click-to-filter (legend + chart elements, synced across every chart)
+    │   ├── pairStyle.js         — same idea, for participant PAIRS (used by WCC, WCLC lag)
+    │   ├── participantFilter.js — page-wide click-to-filter (legend + chart elements, synced across every participant-keyed chart)
+    │   ├── pairFilter.js        — same idea, for PAIR-keyed charts (WCC, WCLC lag) - separate shared state from participantFilter.js
     │   ├── phaseShading.js      — Baseline/Exam background shading, derived from the exam_start marker
     │   ├── formatTime.js        — shared time-axis tick formatter ("Ns")
-    │   ├── containerWidth.js    — every chart's real, responsive width (container minus its own padding)
     │   └── hoverTooltip.js      — shared hover tooltip (line charts + boxplots + WCC)
     └── charts/
         ├── ecgOverlayStatic.js      — 2.1 ECG
@@ -78,7 +79,7 @@ ecg-triad-synchrony/
         ├── trendWithSdStatic.js     — 2.3 HR trend
         ├── boxplotStatic.js         — 2.4 / 2.7 box plots (shared renderer)
         ├── timeSeries.js            — 2.6 RMSSD
-        ├── wccStatic.js              — 3.1 WCC
+        ├── pairTimeSeriesStatic.js  — 3.1 WCC + WCLC lag (shared renderer, keyed by pair not participant)
         ├── synchronyHeatmap.js      — 3.2 DTW matrix (shared renderer, keyed by data file)
         ├── dtwAlignmentExample.js   — 3.3 / 3.4 / 3.5 DTW alignment examples (same renderer, 3 pairs)
         └── network.js               — 3.6 Synchrony network
@@ -99,9 +100,11 @@ see the chat history) — but hover tooltips ARE implemented everywhere,
 and click-to-filter is implemented everywhere too. Every
 PARTICIPANT-keyed chart shares ONE state across the whole page (see
 `participantFilter.js`) — hiding a participant on any chart hides them on
-every other chart. WCC (3.1) is keyed by pair, not by participant, so it
-has its own LOCAL click-to-filter instead (own hidden-set, scoped to that
-one chart only, not synced anywhere else).
+every other chart. WCC and WCLC lag are keyed by pair, not by
+participant, so they share a SEPARATE state instead (`pairFilter.js`) —
+hiding a pair on one hides it on the other, but participant-keyed and
+pair-keyed charts don't affect each other (a "pair" and a "participant"
+aren't the same kind of thing to hide).
 
 ## 5. Next steps
 

@@ -44,18 +44,21 @@ export async function loadTimeSeriesWithCI(url) {
 
 /**
  * Loads a pair-keyed time series, long format: pair,time_s,r
- * (see data/README.md, section 14). "pair" is p1p2/p2p3/p3p1 - the SAME
- * anonymized stems used by the DTW alignment files (section 13) - not a
- * participant id, so this does NOT reuse loadTimeSeries()'s participant
- * field naming.
+ * (see data/README.md, section 14) or pair,time_s,lag_s,r (section 15 -
+ * WCLC). "pair" is p1p2/p2p3/p3p1 - the SAME anonymized stems used by
+ * the DTW alignment files (section 13) - not a participant id, so this
+ * does NOT reuse loadTimeSeries()'s participant field naming. `lagS` is
+ * NaN for files without a lag_s column (e.g. wcc.csv) - harmless, just
+ * unused by whichever chart doesn't ask for it.
  * @param {string} url
- * @returns {Promise<Array<{pair: string, time_s: number, r: number}>>}
+ * @returns {Promise<Array<{pair: string, time_s: number, r: number, lagS: number}>>}
  */
 export async function loadPairTimeSeries(url) {
   return d3.csv(url, (d) => ({
     pair: d.pair,
     time_s: +d.time_s,
     r: +d.r,
+    lagS: +d.lag_s,
   }));
 }
 
