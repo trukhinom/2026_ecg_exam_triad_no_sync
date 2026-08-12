@@ -54,10 +54,15 @@ export function createTooltip(container) {
  *   nearest data point - most charts only need the first arg, but charts
  *   with extra fields to show (e.g. trendWithSdStatic's ±SD) can use the second.
  * @param {string} [params.unit] - short unit suffix appended after the value (e.g. "bpm")
+ * @param {Record<string,string>} [params.colors] - defaults to PARTICIPANT_COLORS;
+ *   pass a different map (e.g. PAIR_COLORS) for charts keyed by something
+ *   other than a single participant.
+ * @param {Record<string,string>} [params.labels] - same idea, defaults to PARTICIPANT_LABELS
  */
 export function attachLineHover({
   container, svg, g, x, innerW, innerH, marginLeft, marginTop,
   byParticipant, getTime, getValue, formatValue = (v) => v.toFixed(1), unit = "",
+  colors = PARTICIPANT_COLORS, labels = PARTICIPANT_LABELS,
 }) {
   const tooltip = createTooltip(container);
 
@@ -81,9 +86,9 @@ export function attachLineHover({
       byParticipant.forEach((points, p) => {
         if (isHidden(p) || points.length === 0) return;
         const nearest = d3.least(points, (d) => Math.abs(getTime(d) - t));
-        const color = PARTICIPANT_COLORS[p] || "#999";
+        const color = colors[p] || "#999";
         rows.push(
-          `<span style="color:${color}">●</span> ${PARTICIPANT_LABELS[p] || p}: ${formatValue(getValue(nearest), nearest)}${unit}`
+          `<span style="color:${color}">●</span> ${labels[p] || p}: ${formatValue(getValue(nearest), nearest)}${unit}`
         );
       });
       if (rows.length === 0) return; // every participant currently hidden

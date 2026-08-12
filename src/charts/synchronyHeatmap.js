@@ -2,8 +2,8 @@
 //
 // Pairwise synchrony heatmap. Expects {participants, matrix} - see
 // loadData.js -> loadSynchronyMatrix(). Fits WCC/WCLC/CRQA/DTW summary
-// coefficients (one number per participant pair per phase), NOT a full
-// recurrence plot - see recurrencePlot.js (canvas) for that.
+// coefficients (one number per participant pair per phase) - currently
+// used for the DTW distance matrix (§3.2 on the page).
 
 import * as d3 from "d3";
 import { PARTICIPANT_LABELS } from "../utils/participantStyle.js";

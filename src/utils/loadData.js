@@ -22,9 +22,47 @@ export async function loadTimeSeries(url) {
 }
 
 /**
+ * Loads a time series in long format WITH a bootstrap 95% CI band:
+ * participant,phase,time_s,value,ci_low,ci_high (see data/README.md, section 1).
+ * Currently only rmssd.csv has the ci_low/ci_high columns - loadTimeSeries()
+ * above stays the plain version for any future chart that doesn't need a
+ * band, rather than making every caller carry unused ciLow/ciHigh fields.
+ *
+ * @param {string} url
+ * @returns {Promise<Array<{participant: string, phase: string, time_s: number, value: number, ciLow: number, ciHigh: number}>>}
+ */
+export async function loadTimeSeriesWithCI(url) {
+  return d3.csv(url, (d) => ({
+    participant: d.participant,
+    phase: d.phase,
+    time_s: +d.time_s,
+    value: +d.value,
+    ciLow: +d.ci_low,
+    ciHigh: +d.ci_high,
+  }));
+}
+
+/**
+ * Loads a pair-keyed time series, long format: pair,time_s,r
+ * (see data/README.md, section 14). "pair" is p1p2/p2p3/p3p1 - the SAME
+ * anonymized stems used by the DTW alignment files (section 13) - not a
+ * participant id, so this does NOT reuse loadTimeSeries()'s participant
+ * field naming.
+ * @param {string} url
+ * @returns {Promise<Array<{pair: string, time_s: number, r: number}>>}
+ */
+export async function loadPairTimeSeries(url) {
+  return d3.csv(url, (d) => ({
+    pair: d.pair,
+    time_s: +d.time_s,
+    r: +d.r,
+  }));
+}
+
+/**
  * Loads a square pairwise synchrony matrix in wide format: first column
  * is the participant id, remaining columns are that participant's values
- * against every other participant (see data/example_synchrony_matrix.csv).
+ * against every other participant (see data/dtw_matrix_baseline.csv).
  *
  * @param {string} url
  * @returns {Promise<{participants: string[], matrix: number[][]}>}

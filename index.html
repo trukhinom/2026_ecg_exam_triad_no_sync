@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ECG Triad Synchrony — Report</title>
+  <!-- Tells search engines not to index this page at all - a key part of
+       keeping it findable only by direct link, not by search. An obscure
+       repo name alone doesn't do this: a crawler that reaches the page via
+       any link would still index whatever text is here regardless of how
+       obscure the URL is. -->
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Triad test</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
@@ -11,8 +17,8 @@
   <header class="page-header">
     <div class="header-inner">
       <p class="eyebrow">Physiological signal analysis</p>
-      <h1>ECG Synchrony in a Triad</h1>
-      <p class="subtitle">Participant 1 · Participant 2 · Participant 3 — Baseline / Exam</p>
+      <h1>Triad test</h1>
+      <p class="subtitle">Baseline / Exam</p>
     </div>
     <!-- Signature element: a synthetic PQRST trace as a section divider -->
     <svg class="ecg-divider" viewBox="0 0 800 60" preserveAspectRatio="none" aria-hidden="true">
@@ -27,19 +33,31 @@
     <section class="report-section" id="section-intro">
       <h2>1. Research question</h2>
       <p>
-        Section for a short text introduction: the goal of the triad analysis, its
-        composition (three anonymized participants — two in the role of students who
-        took an exam together, the third in the role of the instructor), recording
-        phases (Baseline / Exam), and the synchrony methods used
-        (DTW, WCLC, CRQA, WCC, PLV, Kuramoto).
+        Can interpersonal cardiac synchrony be detected within a small group (triad) during a shared exam situation, and does the degree of synchrony differ depending on participants' role in that situation — peers taking the exam together versus a lector?
+      </p>
+    </section>
+   
+    <section class="report-section" id="section-signals-summary">
+      <h2>2. Individual Physiological Signals</h2>
+      <p class="section-note">
+        Below are the ECG/HR/RR/RMSSD signals for the triad's participants — the raw time series and their distributions by phase. You can use the legend to select which participants are shown on the charts.
       </p>
     </section>
 
     <section class="report-section" id="section-ecg-overlay">
       <h2>2.1 ECG — three participants, overlaid</h2>
+      <table class="mini-table">
+        <thead>
+          <tr><th>Participant</th><th>Amplitude min (µV)</th><th>Amplitude max (µV)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Participant 1</td><td>−1163.1</td><td>2192.7</td></tr>
+          <tr><td>Participant 2</td><td>−1540.6</td><td>1937.0</td></tr>
+          <tr><td>Participant 3</td><td>−1824.7</td><td>2481.7</td></tr>
+        </tbody>
+      </table>
       <p class="section-note">
-        Data: <code>data/ecg_raw.csv</code> (+ optionally <code>data/markers.csv</code>) —
-        see <code>data/README.md</code> §5, §7. Short excerpt, not the whole recording — see §8.
+        The ECG chart shows the participants' QRS complexes shortly before and in the first seconds after the start of the exam.
       </p>
       <div id="chart-ecg-overlay" class="chart-container"></div>
     </section>
@@ -47,7 +65,7 @@
     <section class="report-section" id="section-instantaneous-hr">
       <h2>2.2 HR — three participants, overlaid</h2>
       <p class="section-note">
-        Data: <code>data/instantaneous_hr.csv</code> — see <code>data/README.md</code> §6.
+        Instantaneous heart rate, BPM, unsmoothed (one point per beat). Covers a 5-minute window around the start of the exam, not the whole session. See 2.3 for the whole-session trend.
       </p>
       <div id="chart-instantaneous-hr" class="chart-container"></div>
     </section>
@@ -55,7 +73,7 @@
     <section class="report-section" id="section-hr-trend">
       <h2>2.3 HR trend (mean ± SD, sliding window)</h2>
       <p class="section-note">
-        Data: <code>data/hr_trend_sd.csv</code> — see <code>data/README.md</code> §10. Whole session, not an excerpt.
+        The chart shows the whole recording. The lines show mean HR over a sliding 2-minute window (30-second step): for each window position, all beats within it are averaged. The band around each line is ±SD (standard deviation) of the same beats in the same window — i.e., how much HR varied within that window.
       </p>
       <div id="chart-hr-trend" class="chart-container"></div>
     </section>
@@ -63,17 +81,44 @@
     <section class="report-section" id="section-hr-boxplot">
       <h2>2.4 HR distribution — Baseline vs Exam</h2>
       <p class="section-note">
-        Data: <code>data/hr_box_stats.csv</code> + <code>data/hr_box_outliers.csv</code> —
-        see <code>data/README.md</code> §11.
       </p>
+      <table class="mini-table">
+        <thead>
+          <tr>
+            <th>Participant</th><th>Phase</th><th>n</th>
+            <th>Mean (bpm)</th><th>SD (bpm)</th><th>Median (bpm)</th><th>Q1–Q3 (bpm)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Participant 1</td><td>Baseline</td><td>1652</td><td>81.9</td><td>10.5</td><td>81.1</td><td>74.4–88.6</td></tr>
+          <tr><td>Participant 1</td><td>Exam</td><td>5914</td><td>75.3</td><td>8.0</td><td>74.9</td><td>69.8–80.1</td></tr>
+          <tr><td>Participant 2</td><td>Baseline</td><td>1484</td><td>73.9</td><td>11.2</td><td>71.8</td><td>65.9–80.0</td></tr>
+          <tr><td>Participant 2</td><td>Exam</td><td>5386</td><td>69.3</td><td>10.9</td><td>66.7</td><td>62.1–74.1</td></tr>
+          <tr><td>Participant 3</td><td>Baseline</td><td>1765</td><td>86.9</td><td>8.0</td><td>87.5</td><td>82.3–92.2</td></tr>
+          <tr><td>Participant 3</td><td>Exam</td><td>6955</td><td>88.5</td><td>8.6</td><td>88.3</td><td>82.9–93.8</td></tr>
+        </tbody>
+      </table>
       <div id="chart-hr-boxplot" class="chart-container"></div>
+      <p style="font-size:0.85rem;color:var(--color-ink-soft)">Change relative to each participant's own Baseline</p>
+      <table class="mini-table">
+        <thead>
+          <tr>
+            <th>Participant</th><th>Baseline mean (bpm)</th><th>Baseline SD (bpm)</th>
+            <th>Exam mean (bpm)</th><th>Δ vs Baseline</th><th>z-score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Participant 1</td><td>81.9</td><td>10.5</td><td>75.3</td><td>−8.0%</td><td>−0.62</td></tr>
+          <tr><td>Participant 2</td><td>73.9</td><td>11.2</td><td>69.3</td><td>−6.1%</td><td>−0.41</td></tr>
+          <tr><td>Participant 3</td><td>86.9</td><td>8.0</td><td>88.5</td><td>+1.8%</td><td>+0.19</td></tr>
+        </tbody>
+      </table>
     </section>
 
     <section class="report-section" id="section-rr-interval">
       <h2>2.5 RR intervals — three participants, overlaid</h2>
       <p class="section-note">
-        Data: same as 2.2 HR (<code>data/instantaneous_hr.csv</code>) — RR = 60000/HR,
-        no separate file needed, see <code>data/README.md</code> §12.
+        The RR-interval tachogram — time between consecutive heartbeats, in ms. The differences between consecutive values here are what RMSSD is built from.
       </p>
       <div id="chart-rr-interval" class="chart-container"></div>
     </section>
@@ -81,8 +126,7 @@
     <section class="report-section" id="section-timeseries">
       <h2>2.6 RMSSD — sliding window, whole session</h2>
       <p class="section-note">
-        Data: <code>data/rmssd.csv</code> (+ optionally <code>data/markers.csv</code>) —
-        see <code>data/README.md</code> §1, §7.
+        RMSSD over a sliding 60-second window (15-second step), whole session. The shaded band is a bootstrap 95% confidence interval for each window's estimate, not the spread of the underlying signal.
       </p>
       <div id="chart-timeseries" class="chart-container"></div>
     </section>
@@ -90,14 +134,63 @@
     <section class="report-section" id="section-rmssd-boxplot">
       <h2>2.7 RMSSD distribution — Baseline vs Exam</h2>
       <p class="section-note">
-        Data: <code>data/rmssd_box_stats.csv</code> + <code>data/rmssd_box_outliers.csv</code> —
-        see <code>data/README.md</code> §11.
+        The table above and the boxplot itself use the same overlapping sliding-window RMSSD (window=60s, step=15s) as 2.6 — describing exactly what's plotted. 
       </p>
+      <table class="mini-table">
+        <thead>
+          <tr>
+            <th>Participant</th><th>Phase</th>
+            <th>Mean (ms)</th><th>SD (ms)</th><th>Median (ms)</th><th>Q1–Q3 (ms)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Participant 1</td><td>Baseline</td><td>83.0</td><td>11.5</td><td>81.2</td><td>73.8–90.0</td></tr>
+          <tr><td>Participant 1</td><td>Exam</td><td>90.0</td><td>14.0</td><td>88.4</td><td>80.3–99.0</td></tr>
+          <tr><td>Participant 2</td><td>Baseline</td><td>111.9</td><td>22.9</td><td>107.0</td><td>95.3–124.2</td></tr>
+          <tr><td>Participant 2</td><td>Exam</td><td>129.2</td><td>23.6</td><td>128.7</td><td>114.3–141.9</td></tr>
+          <tr><td>Participant 3</td><td>Baseline</td><td>63.3</td><td>11.6</td><td>64.7</td><td>52.3–73.7</td></tr>
+          <tr><td>Participant 3</td><td>Exam</td><td>68.0</td><td>15.2</td><td>68.9</td><td>55.2–77.1</td></tr>
+        </tbody>
+      </table>
       <div id="chart-rmssd-boxplot" class="chart-container"></div>
+      <p style="font-size:0.85rem;color:var(--color-ink-soft)">
+        The table below, by contrast, uses non-overlapping epochs: adjacent overlapping windows share up to 75% of their underlying heartbeats, so they're correlated with each other by construction, not because the physiology is that smooth — fine for a chart, but it would inflate the apparent certainty of a statistical comparison. The same non-overlapping epochs feed every DTW/WCLC/CRQA synchrony method later in this report.
+      </p>
+      <table class="mini-table">
+        <thead>
+          <tr>
+            <th>Participant</th><th>Baseline mean (ms)</th><th>Exam mean (ms)</th>
+            <th>Δ vs Baseline</th><th>z-score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Participant 1</td><td>83.8</td><td>90.1</td><td>+7.5%</td><td>+0.50</td></tr>
+          <tr><td>Participant 2</td><td>112.2</td><td>129.2</td><td>+15.2%</td><td>+0.69</td></tr>
+          <tr><td>Participant 3</td><td>63.1</td><td>68.1</td><td>+7.9%</td><td>+0.43</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="report-section" id="section-synchrony-summary">
+      <h2>3. Synchrony Detection</h2>
+      <p class="section-note">
+        Below are the results for Windowed Cross-Correlation (WCC), Dynamic Time Warping (DTW), and the Synchrony Network graph.
+      </p>
+    </section>
+
+    <section class="report-section" id="section-wcc">
+      <h2>3.1 WCC</h2>
+      <p class="section-note">
+        Windowed Cross-Correlation (WCC): a sliding-window Pearson correlation between
+        each pair of participants' instantaneous HR — 60-second window, 10-second step.
+        Unlike a single correlation coefficient over the whole session, this gives a
+        time series showing WHEN a pair is synchronized, not just how much on average.
+      </p>
+      <div id="chart-wcc" class="chart-container"></div>
     </section>
 
     <section class="report-section" id="section-dtw-matrix">
-      <h2>3.1 DTW distance matrix</h2>
+      <h2>3.2 DTW distance matrix</h2>
       <p class="section-note">
         Fits a summary synchrony coefficient for a participant pair — DTW distance. The
         diagonal is self-similarity: 0.0 is natural for DTW distance (a series' distance
@@ -111,7 +204,7 @@
     </section>
 
     <section class="report-section" id="section-dtw-alignment-p1p2">
-      <h2>3.2 DTW alignment example — Participant 1 vs Participant 2</h2>
+      <h2>3.3 DTW alignment example — Participant 1 vs Participant 2</h2>
       <p class="section-note">
         An illustration for the DTW matrix: not a summary number, but the process
         itself — how far one series of z-scored RMSSD had to be "shifted" relative to
@@ -121,7 +214,7 @@
     </section>
 
     <section class="report-section" id="section-dtw-alignment-p2p3">
-      <h2>3.3 DTW alignment example — Participant 2 vs Participant 3</h2>
+      <h2>3.4 DTW alignment example — Participant 2 vs Participant 3</h2>
       <p class="section-note">
         An illustration for the DTW matrix: not a summary number, but the process
         itself — how far one series of z-scored RMSSD had to be "shifted" relative to
@@ -131,23 +224,13 @@
     </section>
 
     <section class="report-section" id="section-dtw-alignment-p3p1">
-      <h2>3.4 DTW alignment example — Participant 3 vs Participant 1</h2>
+      <h2>3.5 DTW alignment example — Participant 3 vs Participant 1</h2>
       <p class="section-note">
         An illustration for the DTW matrix: not a summary number, but the process
         itself — how far one series of z-scored RMSSD had to be "shifted" relative to
         the other for the shapes to match.
       </p>
       <div id="chart-dtw-alignment-p3p1" class="chart-container"></div>
-    </section>
-
-    <section class="report-section" id="section-heatmap">
-      <h2>3.5 Pairwise synchrony matrix (draft)</h2>
-      <p class="section-note">
-        Data: <code>data/example_synchrony_matrix.csv</code> — currently a PLACEHOLDER
-        (made-up numbers for layout testing, not a computed result). The visualization
-        itself is still under discussion — a replacement is being considered.
-      </p>
-      <div id="chart-heatmap" class="chart-container"></div>
     </section>
 
     <section class="report-section" id="section-network">
@@ -163,28 +246,49 @@
       </div>
     </section>
 
-    <section class="report-section" id="section-recurrence">
-      <h2>3.7 Recurrence plot</h2>
-      <p class="section-note">
-        Data: <code>data/recurrence_example.json</code> — see <code>data/README.md</code> §4.
-        One illustrative example (one pair, one phase), not all pairs at once.
-      </p>
-      <div id="chart-recurrence" class="chart-container"></div>
-    </section>
-
     <section class="report-section" id="section-discussion">
-      <h2>4. Discussion</h2>
-      <p>
-        Section for interpretation: where synchrony was found, between which
-        participants and in which phase, and whether this matches the
-        student-student vs student-teacher hypothesis.
-      </p>
-    </section>
+  <h2>4. Discussion</h2>
+  <p>
+    No statistically significant synchrony was found between the triad's
+    participants. An unexpected finding was the rise in RMSSD during the
+    exam relative to the pre-exam phase — the opposite of what the stress
+    hypothesis would predict. One possible explanation is that
+    anticipating the exam was a more stressful experience than the exam itself.
+  </p>
+  <p>
+    This interpretation should also weigh a duration asymmetry: the Exam
+  phase lasted much longer than Baseline. Averaging RMSSD over the whole
+  exam period could have masked an early nervous-system reaction right
+  at the exam's start.
+  </p>
+  <p>
+    Two data-quality confounds are worth flagging also. For the
+    lecturer, movement during the exam is a plausible confound: unlike
+    the seated students, the lecturer likely moved around the room, and
+    movement is a common source of R-peak detection artifacts that can
+    inflate RMSSD independently of physiology. Second, a clock offset
+    between recording devices could specifically confound the comparison itself, not just add general noise:
+    participant_1 and participant_2 shared a single phone, so their timestamps share one device clock
+    with no cross-device offset, while participant_3 was recorded on a separate phone, giving both outsider pairs a potential
+    cross-device offset the insider pair does not have. Any difference
+    found between their synchrony could therefore partly
+    reflect this technical asymmetry rather than physiology alone —
+    though the coarse time resolution most synchrony methods here use
+    (60-second RMSSD windows) limits how much a likely sub-few-second
+    offset could distort the result; it would matter more for anything
+    comparing raw, sample-level timing, such as the ECG overlay.
+  </p>
+  <p>
+    This is a single triad, a single session — the result is best read as
+  a pilot observation, not a confirmed group-level finding about
+  students and lecturers.
+  </p>
+</section>
 
   </main>
 
   <footer class="page-footer">
-    <p>ECG Triad Synchrony Report</p>
+    <p>Triad test</p>
   </footer>
 
   <script type="module" src="./index.js"></script>

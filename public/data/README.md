@@ -22,11 +22,36 @@ participant_1,Baseline,10,43.0
 - `time_s` — time in seconds **from `common_start`** (the same reference
   point as every other file below — see §5)
 - `value` — the metric's value (RMSSD, HR, etc.)
+- `ci_low`/`ci_high` — OPTIONAL, bootstrap 95% confidence interval bounds
+  for `value` (2.5th/97.5th percentile of bootstrap resamples — see below).
+  If present, `renderTimeSeries()` draws a shaded band between them
+  automatically; if absent (as in most files using this format), no band
+  is drawn — this is detected from the data itself
+  (`data[0].ciLow != null`), not a separate option you have to set
 
 Long format was chosen over wide (one column per participant) because:
 (1) it's robust to a different number of points per participant, (2) it
 needs no schema change to add a metric — just a new CSV with a different
 `value`.
+
+**Why a bootstrap CI, not the same "mean ± SD" band as `hr_trend_sd.csv`
+(§10)**: SD only makes sense when a window contains MULTIPLE raw
+observations to spread out — HR has one instantaneous value per beat, so
+a 2-minute window has dozens of numbers to average and take the SD of.
+RMSSD is different: it's already a single summary number PER window
+(`sqrt(mean(diff(RR)**2))`), not an average of many per-window RMSSD
+values — there's nothing to take an SD of within one window. A bootstrap
+CI answers a different, well-posed question instead: "if this window's
+RR differences were resampled many times, how much would the resulting
+RMSSD vary?" — i.e. how reliable is this window's point estimate, not how
+spread out the underlying signal was. `rmssd.csv` is currently the only
+file using this — resamples the window's squared successive RR
+differences with replacement (300 times), recomputes RMSSD each time,
+and takes the 2.5th/97.5th percentile of that distribution as
+`ci_low`/`ci_high`. The point estimate (`value`) is NOT affected by the
+number of bootstrap iterations — only the CI's precision is (see the
+sanity check in chat: point estimate is identical regardless of
+`n_boot`).
 
 **If you need several metrics** (e.g. both HR and RMSSD) — make a
 separate CSV per metric and call `renderTimeSeries` twice with different
@@ -47,7 +72,7 @@ participant_3,0.61,0.55,0.0
 
 Fits any summary synchrony coefficient for a participant pair — WCC,
 WCLC, DTW distance, etc., one number per pair, one file per phase
-(`dtw_matrix_baseline.csv`, `dtw_matrix_exam.csv` — see §3.1 on the page).
+(`dtw_matrix_baseline.csv`, `dtw_matrix_exam.csv` — see §3.2 on the page).
 The diagonal is self-similarity: 0.0 is natural for DTW distance (a
 series' distance to itself), 1.0 for correlation; the chart never labels
 the diagonal with a number either way (see `d.i !== d.j` in the code),
@@ -57,9 +82,10 @@ it only colors it.
 (`synchrony(A,B) = synchrony(B,A)`, whether for WCC/correlation or DTW
 distance) — so the full matrix duplicates every off-diagonal number
 twice. The `hideRedundantHalf: true` option in `renderSynchronyHeatmap()`
-draws only the lower triangle — use it unless this is a deliberate
-low-fi placeholder (as it currently is in section "2. Pairwise synchrony
-matrix" on the page — a placeholder, waiting to be replaced, see chat).
+draws only the lower triangle — this is what §3.2 (DTW distance matrix)
+on the page uses. The earlier draft placeholder that used the FULL
+(non-triangular) matrix has since been removed from the page entirely,
+not just fixed — see chat.
 
 ## 3. Synchrony network (`network.js`) — JSON
 
@@ -89,40 +115,13 @@ edges) doesn't fit a tabular format without duplication.
   If you want WCC/WCLC z-score as the weight instead of DTW — there,
   "higher = stronger" already holds, no inversion needed, just swap in a
   different column at export time
-- `role` — optional, only used for a short in-node label (the role's
-  first letter) — can be omitted
+- `role` — currently ignored by the chart (accepted in the data but not
+  rendered — an earlier version showed the role's first letter inside
+  each node, removed since; kept in the export in case you want it back
+  for something later)
 
 Two files (`network_baseline.json`, `network_exam.json`) — one per
 phase, same as §2.
-
-## 4. Recurrence plot (`recurrencePlot.js`) — JSON, WATCH THE SIZE
-
-```json
-{ "n": 250, "values": [0.12, 0.94, 0.30, ...] }
-```
-
-`values` is an N×N matrix flattened row-major into a flat array of
-length `n*n`. Values are a continuous 0..1 "state closeness" (1 = the
-closest state pair in this specific matrix → dark pixel), not strictly
-binary recurrence (0/1 "within radius or not") — block-averaging for
-downsampling (see below) naturally turns binary 0/1 into a continuous
-"fraction of recurrent points per block", which is what gets drawn.
-
-**Important constraint**: the native cross-recurrence matrix (e.g.
-between two downsampled HR series via the CRQA method in your `ecg.py`)
-can reach ~m×m, where m is a few hundred states per phase. As a JSON
-file this isn't just hard to transfer over the network, it's flatly
-wrong to render in the browser as row-by-row SVG rectangles (see the
-comment in `recurrencePlot.js` — the code there uses `<canvas>`, not SVG).
-
-The matrix is **downsampled on the Python side** (block averaging, not
-taking every k-th point — that would lose the structure between samples)
-down to 250×250 in the export script — JS receives the already-shrunk
-matrix, not the raw one. One representative example is shown (one
-participant pair, one phase), not all pairs at once — a full sweep of
-pairs×phases would give too many charts for one report page; if you need
-all of them, more can be added later the same way (another
-`renderRecurrencePlot` call per JSON file pair).
 
 ## 5. ECG overlay (`ecgOverlayStatic.js`) — wide CSV
 
@@ -368,3 +367,39 @@ i,j
   ever increase along the path) — if you end up with a path from a
   different library/implementation, that's worth checking before feeding
   it in here
+
+## 14. WCC — sliding-window Pearson r (`wccStatic.js`) — long CSV, keyed by pair
+
+**`wcc.csv`**:
+
+```
+pair,time_s,r
+p1p2,45.0,0.18
+p1p2,55.0,0.22
+...
+p2p3,45.0,-0.05
+...
+```
+
+- `pair` — `p1p2`/`p2p3`/`p3p1`, the SAME anonymized pair stems used by
+  the DTW alignment files (§13) — NOT a `participant` column, since this
+  is about a relationship between two participants, not one participant.
+  `wccStatic.js` therefore uses its own color/label scheme
+  (`src/utils/pairStyle.js`) instead of `participantStyle.js`, and its own
+  LOCAL click-to-filter (own hidden-set, scoped to this one chart) instead
+  of the shared `participantFilter.js` — that module keeps a single
+  participant's visibility in sync across every participant-keyed chart on
+  the page, and there's no other pair-keyed chart here for a pair's
+  visibility to sync with
+- `time_s` — the sliding window's center, seconds from `common_start`
+  (same reference point as every other file — see §5)
+- `r` — Pearson correlation between the pair's instantaneous HR within
+  that window (60-second window, 10-second step in the export script) —
+  this is the SAME `wcc_results` your `ecg.py` already computes and plots
+  (method 2.1) reused directly, not a new computation
+
+Unlike `rmssd.csv` (§1), `wcc.csv` doesn't carry a `phase` column —
+`wccStatic.js` shades Baseline/Exam from the `exam_start` marker instead
+(same approach as the ECG/HR/RR/HR-trend charts, see
+`src/utils/phaseShading.js`), consistent with every OTHER chart on the
+page that doesn't have its own phase column.

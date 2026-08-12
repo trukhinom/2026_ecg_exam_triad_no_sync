@@ -179,3 +179,22 @@ h2 {
   font-size: 0.8rem;
   color: var(--color-ink-soft);
 }
+
+/* ---------- Small descriptive-stats tables (2.1, 2.4, 2.7 etc.) ---------- */
+
+.mini-table {
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin: 0.5rem 0 1rem;
+}
+.mini-table th, .mini-table td {
+  border: 1px solid var(--color-border);
+  padding: 0.35rem 0.6rem;
+  text-align: right;
+}
+.mini-table th:first-child, .mini-table td:first-child {
+  text-align: left;
+}
+.mini-table td {
+  font-family: var(--font-mono);
+}
