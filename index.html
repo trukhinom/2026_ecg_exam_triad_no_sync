@@ -35,6 +35,12 @@
       <p>
         Can interpersonal cardiac synchrony be detected within a small group (triad) during a shared exam situation, and does the degree of synchrony differ depending on participants' role in that situation — peers taking the exam together versus a lector?
       </p>
+      <h2>Limitations</h2>
+      <p>
+        This is a single triad, a single session — the result is best read as
+        a pilot observation, not a confirmed group-level finding about
+        students and lecturers.
+      </p>
     </section>
    
     <section class="report-section" id="section-signals-summary">
@@ -174,7 +180,7 @@
     <section class="report-section" id="section-synchrony-summary">
       <h2>3. Synchrony Detection</h2>
       <p class="section-note">
-        Below are the results for Windowed Cross-Correlation (WCC), Dynamic Time Warping (DTW), and the Synchrony Network graph.
+        Below are the results for Windowed Cross-Correlation (WCC), Dynamic Time Warping (DTW) and the Synchrony Network graph.
       </p>
     </section>
 
@@ -186,16 +192,77 @@
         Unlike a single correlation coefficient over the whole session, this gives a
         time series showing WHEN a pair is synchronized, not just how much on average.
       </p>
+      <table class="mini-table">
+        <thead>
+          <tr>
+            <th>Pair</th><th>Role</th><th>Phase</th>
+            <th>mean r</th><th>mean |r|</th><th>SD |r|</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Participant 1 × 2</td><td>insider</td><td>Baseline</td><td>0.092</td><td>0.169</td><td>0.184</td></tr>
+          <tr><td>Participant 1 × 2</td><td>insider</td><td>Exam</td><td>−0.027</td><td>0.130</td><td>0.164</td></tr>
+          <tr><td>Participant 3 × 1</td><td>outsider</td><td>Baseline</td><td>−0.056</td><td>0.208</td><td>0.247</td></tr>
+          <tr><td>Participant 3 × 1</td><td>outsider</td><td>Exam</td><td>−0.018</td><td>0.122</td><td>0.160</td></tr>
+          <tr><td>Participant 2 × 3</td><td>outsider</td><td>Baseline</td><td>−0.019</td><td>0.152</td><td>0.188</td></tr>
+          <tr><td>Participant 2 × 3</td><td>outsider</td><td>Exam</td><td>0.028</td><td>0.140</td><td>0.176</td></tr>
+        </tbody>
+      </table>
+
+      <p style="font-size:0.85rem;color:var(--color-ink-soft)">
+        Insider (student-student) vs outsider (student-lecturer) — Mann-Whitney U test on |r|, per phase.
+      </p>
+      <table class="mini-table">
+        <thead>
+          <tr>
+            <th>Phase</th><th>Insider median |r|</th><th>Outsider median |r|</th><th>p-value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Baseline</td><td>0.152</td><td>0.145</td><td>0.6089</td></tr>
+          <tr><td>Exam</td><td>0.106</td><td>0.104</td><td>0.5443</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.85rem;color:var(--color-ink-soft)">
+        No significant difference between insider and outsider synchrony in either phase
+        (p ≫ 0.05) — WCC does not support the insider/outsider hypothesis.
+      </p>
       <div id="chart-wcc" class="chart-container"></div>
+      <p class="section-note" style="margin-top: 1rem;">
+  By this measure, cardiac synchrony was similarly weak across all three pairs, in
+  both phases — mean |r| ranged from 0.12 to 0.21 with no pair standing out, and the
+  Mann-Whitney test found no significant difference between the insider 
+  and outsider pairs in either Baseline (p=0.61) or Exam (p=0.54). WCC does not
+  support the insider/outsider synchrony hypothesis.
+</p>
     </section>
 
     <section class="report-section" id="section-dtw-matrix">
       <h2>3.2 DTW distance matrix</h2>
       <p class="section-note">
+        Dynamic Time Warping (DTW): unlike Pearson correlation, which compares two series
+        strictly point-by-point at the same moment in time, DTW finds the best nonlinear
+        alignment between them — letting one series stretch or compress relative to the
+        other — and returns the cost of that alignment. Lower cost means the SHAPE of the
+        two RMSSD curves matches more closely, even if events in them are offset in time;
+        unlike WCC, it doesn't ask whether the two moved together at the same instant.
+      </p>
+      <p class="section-note">
         Fits a summary synchrony coefficient for a participant pair — DTW distance. The
         diagonal is self-similarity: 0.0 is natural for DTW distance (a series' distance
-        to itself). The matrix is symmetric by construction
-        (synchrony(A,B) = synchrony(B,A)).
+        to itself). Lower = more similar RMSSD curve shape. In Exam, the insider pair has the lowest
+        (most similar) DTW of the three — consistent with the hypothesis. In Baseline,
+        that's not the case: one outsider pair (Participant 2 × 3) is actually closer than
+        the insider pair.  The matrix is symmetric by construction
+        (synchrony(A,B) = synchrony(B,A)). DTW has no built-in significance test here —
+        read it comparatively (which pair's curve shape is closer), not as a
+        significant/not-significant result.
+      </p>
+      <p class="section-note">
+        How to read a cell: it's the cost of "warping" one person's RMSSD curve to line up
+        with another's — NOT a percentage or a correlation, so there's no fixed scale to
+        judge a single number against (0.59 isn't "59% similar" to anything). The only
+        useful comparison is between the three cells in the same matrix.
       </p>
       <div class="chart-row">
         <div id="chart-dtw-baseline" class="chart-container"></div>
@@ -204,41 +271,46 @@
     </section>
 
     <section class="report-section" id="section-dtw-alignment-p1p2">
-      <h2>3.3 DTW alignment example — Participant 1 vs Participant 2</h2>
+      <h2>3.3 DTW alignment example</h2>
       <p class="section-note">
-        An illustration for the DTW matrix: not a summary number, but the process
-        itself — how far one series of z-scored RMSSD had to be "shifted" relative to
-        the other for the shapes to match.
+        What's happening here: both lines are the same z-scored RMSSD curve as in 3.2 — one
+        drawn above the other (not overlaid) so the connectors below are readable. Each thin
+        gray line connects one point on the top curve to the point on the bottom curve that
+        DTW matched it to.
+      </p>
+      <p class="section-note">
+        How to read a connector: a near-vertical line means the two points matched up at
+        roughly the same time — no shift was needed. A slanted or long diagonal line means
+        DTW had to reach forward or back in time to find a matching shape — the longer and
+        more tilted, the bigger that shift. A cluster of many steep diagonal lines in one
+        stretch (for example, look for where the lines fan out most) means that stretch of
+        the two people's RMSSD curves needed the most reshaping to line up. The single
+        number in the 3.2 matrix (e.g. 0.56) is just the total cost of all these connectors
+        added up and averaged — this chart is what that one number is actually built from.
       </p>
       <div id="chart-dtw-alignment-p1p2" class="chart-container"></div>
-    </section>
-
-    <section class="report-section" id="section-dtw-alignment-p2p3">
-      <h2>3.4 DTW alignment example — Participant 2 vs Participant 3</h2>
-      <p class="section-note">
-        An illustration for the DTW matrix: not a summary number, but the process
-        itself — how far one series of z-scored RMSSD had to be "shifted" relative to
-        the other for the shapes to match.
-      </p>
       <div id="chart-dtw-alignment-p2p3" class="chart-container"></div>
-    </section>
-
-    <section class="report-section" id="section-dtw-alignment-p3p1">
-      <h2>3.5 DTW alignment example — Participant 3 vs Participant 1</h2>
-      <p class="section-note">
-        An illustration for the DTW matrix: not a summary number, but the process
-        itself — how far one series of z-scored RMSSD had to be "shifted" relative to
-        the other for the shapes to match.
-      </p>
       <div id="chart-dtw-alignment-p3p1" class="chart-container"></div>
     </section>
-
     <section class="report-section" id="section-network">
-      <h2>3.6 Synchrony network</h2>
+      <h2>3.6 Synchrony Network</h2>
       <p class="section-note">
-        Weight — link strength, the higher, the stronger the synchrony (the graph draws
-        a thicker, more opaque edge and pulls the nodes closer together — the reverse of
-        DTW distance, where SMALLER means more similar).
+        The same DTW distance from 3.2, but rescaled so that HIGHER means
+        MORE similar (weight = 1 / (1 + DTW distance)) — the opposite direction from the
+        matrix, where lower means more similar. The numbers here are therefore different
+        from the matrix (e.g. DTW 0.59 becomes weight 0.63) even though they come from the
+        exact same underlying computation. A thicker, closer edge means a stronger link.
+        With only 3 participants the layout always settles into roughly a triangle
+        regardless of the pattern — this chart doesn't add new information beyond the 3.2
+        matrix, it's the same comparison, just easier to scan at a glance than comparing
+        decimals.
+      </p>
+      <p class="section-note">
+        In Baseline, Participant 2 × 3 (an outsider pair) has the strongest link; the
+        insider pair (1 × 2) is weakest. In Exam, that flips — the insider pair becomes
+        strongest and Participant 2 × 3 becomes weakest. As with 3.2, there's no
+        significance test behind these weights — read this as a visual summary of the same
+        comparative pattern, not a tested result.
       </p>
       <div class="chart-row">
         <div id="chart-network-baseline" class="chart-container"></div>
@@ -277,11 +349,6 @@
     (60-second RMSSD windows) limits how much a likely sub-few-second
     offset could distort the result; it would matter more for anything
     comparing raw, sample-level timing, such as the ECG overlay.
-  </p>
-  <p>
-    This is a single triad, a single session — the result is best read as
-  a pilot observation, not a confirmed group-level finding about
-  students and lecturers.
   </p>
 </section>
 
