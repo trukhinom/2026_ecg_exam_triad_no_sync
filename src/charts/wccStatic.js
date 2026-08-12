@@ -14,6 +14,7 @@
 
 import * as d3 from "d3";
 import { PAIR_COLORS, PAIR_LABELS } from "../utils/pairStyle.js";
+import { getContentWidth } from "../utils/containerWidth.js";
 import { drawPhaseShading } from "../utils/phaseShading.js";
 import { formatSeconds } from "../utils/formatTime.js";
 import { attachLineHover } from "../utils/hoverTooltip.js";
@@ -27,7 +28,7 @@ export function renderWcc(containerId, data, markers = []) {
   const container = d3.select(`#${containerId}`);
   container.selectAll("*").remove();
 
-  const width = container.node().clientWidth || 800;
+  const width = getContentWidth(container, 800);
   const height = 340;
   const margin = { top: 36, right: 16, bottom: 32, left: 48 };
   const innerW = width - margin.left - margin.right;

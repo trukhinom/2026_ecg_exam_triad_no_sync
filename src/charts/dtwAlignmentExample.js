@@ -10,6 +10,7 @@
 
 import * as d3 from "d3";
 import { PARTICIPANT_COLORS, PARTICIPANT_LABELS } from "../utils/participantStyle.js";
+import { getContentWidth } from "../utils/containerWidth.js";
 import { formatSeconds } from "../utils/formatTime.js";
 
 /**
@@ -33,7 +34,7 @@ export function renderDtwAlignmentExample(containerId, series, path, options = {
   const seriesA = series.filter((d) => d.participant === pA).sort((a, b) => a.time_s - b.time_s);
   const seriesB = series.filter((d) => d.participant === pB).sort((a, b) => a.time_s - b.time_s);
 
-  const width = container.node().clientWidth || 900;
+  const width = getContentWidth(container, 900);
   const height = 420;
   const margin = { top: 40, right: 20, bottom: 30, left: 56 };
   const innerW = width - margin.left - margin.right;

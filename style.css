@@ -142,6 +142,18 @@ h2 {
   min-width: 0; /* lets a track shrink below a wide child's intrinsic width instead of forcing overflow */
 }
 
+/* On a narrow phone, two ~880px-page-oriented columns squeeze down to
+   under 150px each — each chart still fits its own column correctly (see
+   getContentWidth in every src/charts/*.js), so nothing overlaps, but a
+   DTW matrix or network graph at that size is too cramped to read. Below
+   this breakpoint, stack the pair into one column instead - each chart
+   gets the phone's FULL width rather than half of it. */
+@media (max-width: 640px) {
+  .chart-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---------- Chart internals (used by src/charts/*.js) ---------- */
 
 .axis text { fill: var(--color-ink-soft); font-size: 0.75rem; }

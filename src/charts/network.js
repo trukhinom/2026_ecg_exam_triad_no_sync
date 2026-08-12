@@ -10,25 +10,28 @@
 import * as d3 from "d3";
 import { PARTICIPANT_COLORS, PARTICIPANT_LABELS } from "../utils/participantStyle.js";
 import { toggleParticipant, onFilterChange, isHidden } from "../utils/participantFilter.js";
+import { getContentWidth } from "../utils/containerWidth.js";
 
 /**
  * @param {string} containerId
  * @param {{nodes: Array<{id: string, role?: string}>, links: Array<{source: string, target: string, weight: number}>}} graph
  * @param {object} [options]
  * @param {string} [options.title]
- * @param {number} [options.width] - fixed width in px. Set this explicitly
- *   when rendering two of these side by side (e.g. Baseline/Exam) - without
- *   it, `container.clientWidth` can read wider than the grid column has
- *   room for (measured before the row's own layout is fully settled), and
- *   two networks each claiming ~500px would overflow an ~830px-wide row
- *   and wrap onto separate lines instead of sitting side by side.
  */
 export function renderNetwork(containerId, graph, options = {}) {
-  const { title = "Synchrony network", width: fixedWidth } = options;
+  const { title = "Synchrony network" } = options;
   const container = d3.select(`#${containerId}`);
   container.selectAll("*").remove();
 
-  const width = fixedWidth || container.node().clientWidth || 500;
+  // Reads the container's REAL width (its CSS grid column, on any screen
+  // size) minus its own padding - NOT a fixed pixel value. An earlier
+  // version hardcoded 360px here to work around charts wrapping onto
+  // separate rows in a flex layout; that reflow bug is gone now that
+  // .chart-row uses CSS grid (grid-template-columns forces exactly 2
+  // columns regardless of child width), but the fixed 360px stuck around
+  // and, on a mobile screen narrower than 360px total, made the two
+  // networks overlap instead of just sitting side by side too widely.
+  const width = getContentWidth(container, 500);
   const height = 360;
 
   const svg = container.append("svg").attr("width", width).attr("height", height + 20);

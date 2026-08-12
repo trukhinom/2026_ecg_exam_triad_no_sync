@@ -28,13 +28,6 @@ import { renderWcc } from "./src/charts/wccStatic.js";
 import { renderDtwAlignmentExample } from "./src/charts/dtwAlignmentExample.js";
 import { renderNetwork } from "./src/charts/network.js";
 
-// Fixed width for any chart rendered two-up (Baseline/Exam side by side) -
-// with .chart-row now using CSS grid (1fr 1fr, see style.css) each column
-// is ~408px on an 880px-max-width page, minus .chart-container's own 1rem
-// padding on each side (32px) - leaves ~376px available for the SVG
-// itself. 360 keeps a small safety margin instead of exactly maxing it out.
-const PAIRED_CHART_WIDTH = 360;
-
 async function main() {
   // markers.csv is optional (vertical markers like exam start) - if the
   // file doesn't exist yet, silently continue without markers instead of
@@ -92,10 +85,10 @@ async function main() {
   const dtwAllValues = [...dtwBaseline.matrix.flat(), ...dtwExam.matrix.flat()];
   const dtwDomain = [0, Math.max(...dtwAllValues)]; // 0 = identical (diagonal), not -1..1 like correlation
   renderSynchronyHeatmap("chart-dtw-baseline", dtwBaseline, {
-    domain: dtwDomain, hideRedundantHalf: true, width: PAIRED_CHART_WIDTH,
+    domain: dtwDomain, hideRedundantHalf: true,
   });
   renderSynchronyHeatmap("chart-dtw-exam", dtwExam, {
-    domain: dtwDomain, hideRedundantHalf: true, width: PAIRED_CHART_WIDTH,
+    domain: dtwDomain, hideRedundantHalf: true,
   });
 
   // --- 3.3-3.5 DTW alignment example, all three pairs ---
@@ -119,8 +112,8 @@ async function main() {
     loadJSON("./data/network_baseline.json"),
     loadJSON("./data/network_exam.json"),
   ]);
-  renderNetwork("chart-network-baseline", networkBaseline, { title: "Baseline", width: PAIRED_CHART_WIDTH });
-  renderNetwork("chart-network-exam", networkExam, { title: "Exam", width: PAIRED_CHART_WIDTH });
+  renderNetwork("chart-network-baseline", networkBaseline, { title: "Baseline" });
+  renderNetwork("chart-network-exam", networkExam, { title: "Exam" });
 }
 
 main().catch((err) => {

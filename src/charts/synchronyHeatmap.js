@@ -7,6 +7,7 @@
 
 import * as d3 from "d3";
 import { PARTICIPANT_LABELS } from "../utils/participantStyle.js";
+import { getContentWidth } from "../utils/containerWidth.js";
 
 /**
  * @param {string} containerId
@@ -19,18 +20,18 @@ import { PARTICIPANT_LABELS } from "../utils/participantStyle.js";
  *   the question "what do the duplicated numbers show" for the placeholder
  *   version of the chart; for DTW (also symmetric by construction) this is
  *   turned on by default at the call site.
- * @param {number} [options.width] - fixed width in px. Set this explicitly
- *   when rendering two of these side by side (Baseline/Exam) - same
- *   reasoning as the `width` option in network.js.
  */
 export function renderSynchronyHeatmap(containerId, data, options = {}) {
   const { participants, matrix } = data;
-  const { domain = [-1, 1], hideRedundantHalf = false, width: fixedWidth } = options;
+  const { domain = [-1, 1], hideRedundantHalf = false } = options;
 
   const container = d3.select(`#${containerId}`);
   container.selectAll("*").remove();
 
-  const size = fixedWidth || Math.min(container.node().clientWidth || 400, 420);
+  // Reads the container's REAL width (its CSS grid column, on any screen
+  // size) minus its own padding, capped at 420 - not a fixed pixel value.
+  // See network.js for why the earlier fixed-360px version broke on mobile.
+  const size = Math.min(getContentWidth(container, 400), 420);
   const margin = { top: 60, right: 16, bottom: 16, left: 110 };
   const cell = (size - margin.left - margin.right) / participants.length;
   const width = margin.left + cell * participants.length + margin.right;

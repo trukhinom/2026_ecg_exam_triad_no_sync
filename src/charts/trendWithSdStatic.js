@@ -8,6 +8,7 @@
 
 import * as d3 from "d3";
 import { PARTICIPANT_COLORS, PARTICIPANT_LABELS } from "../utils/participantStyle.js";
+import { getContentWidth } from "../utils/containerWidth.js";
 import { makeParticipantFilterable } from "../utils/participantFilter.js";
 import { drawPhaseShading } from "../utils/phaseShading.js";
 import { formatSeconds } from "../utils/formatTime.js";
@@ -28,7 +29,7 @@ export function renderTrendWithSd(containerId, data, markers = [], options = {})
   container.selectAll("*").remove();
 
   const participants = [...new Set(data.map((d) => d.participant))];
-  const width = container.node().clientWidth || 900;
+  const width = getContentWidth(container, 900);
   const height = 320;
   const margin = { top: 36, right: 20, bottom: 30, left: 56 };
   const innerW = width - margin.left - margin.right;

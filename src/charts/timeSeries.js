@@ -15,6 +15,7 @@
 
 import * as d3 from "d3";
 import { PARTICIPANT_COLORS, PARTICIPANT_LABELS } from "../utils/participantStyle.js";
+import { getContentWidth } from "../utils/containerWidth.js";
 import { makeParticipantFilterable } from "../utils/participantFilter.js";
 import { formatSeconds } from "../utils/formatTime.js";
 import { attachLineHover } from "../utils/hoverTooltip.js";
@@ -45,7 +46,7 @@ export function renderTimeSeries(containerId, data, markers = [], options = {}) 
 
   const hasCI = data.length > 0 && data[0].ciLow != null && !Number.isNaN(data[0].ciLow);
 
-  const width = container.node().clientWidth || 800;
+  const width = getContentWidth(container, 800);
   const height = 340;
   const margin = { top: 16, right: 16, bottom: 32, left: 48 };
   const innerW = width - margin.left - margin.right;

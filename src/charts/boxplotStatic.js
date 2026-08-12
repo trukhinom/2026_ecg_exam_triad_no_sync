@@ -14,6 +14,7 @@
 
 import * as d3 from "d3";
 import { PARTICIPANT_COLORS, PARTICIPANT_LABELS } from "../utils/participantStyle.js";
+import { getContentWidth } from "../utils/containerWidth.js";
 import { makeParticipantFilterable } from "../utils/participantFilter.js";
 import { createTooltip } from "../utils/hoverTooltip.js";
 
@@ -34,7 +35,7 @@ export function renderBoxplot(containerId, boxStats, outliers, options = {}) {
   container.selectAll("*").remove();
 
   const participants = [...new Set(boxStats.map((d) => d.participant))];
-  const width = container.node().clientWidth || 700;
+  const width = getContentWidth(container, 700);
   const height = 320;
   const margin = { top: 36, right: 20, bottom: 36, left: 56 };
   const innerW = width - margin.left - margin.right;

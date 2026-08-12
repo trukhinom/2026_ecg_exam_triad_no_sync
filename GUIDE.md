@@ -70,6 +70,7 @@ ecg-triad-synchrony/
     │   ├── participantFilter.js — page-wide click-to-filter (legend + chart elements, synced across every chart)
     │   ├── phaseShading.js      — Baseline/Exam background shading, derived from the exam_start marker
     │   ├── formatTime.js        — shared time-axis tick formatter ("Ns")
+    │   ├── containerWidth.js    — every chart's real, responsive width (container minus its own padding)
     │   └── hoverTooltip.js      — shared hover tooltip (line charts + boxplots + WCC)
     └── charts/
         ├── ecgOverlayStatic.js      — 2.1 ECG
